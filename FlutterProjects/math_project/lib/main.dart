@@ -1,6 +1,8 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+//import 'package:fluttertoast/fluttertoast.dart';
 
 void main() => runApp(MyApp());
 
@@ -9,7 +11,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Math Practice',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         // This is the theme of your application.
         //
@@ -20,9 +23,9 @@ class MyApp extends StatelessWidget {
         // or simply save your changes to "hot reload" in a Flutter IDE).
         // Notice that the counter didn't reset back to zero; the application
         // is not restarted.
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.deepPurple,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Math Practice'),
     );
   }
 }
@@ -48,44 +51,105 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _opA = 0;
   var _opB = 0;
+  double _doubleA = 0.0;
+  double _doubleB = 0.0;
   var _sln = 0;
+  var _doubleSln = 0.0;
   int _opcode = 0;
   String _operation = '';
   String _eq = '';
+  String _answer = '';
+  int _score = 0;
+  bool _mode = false;
 
-  void _makeProblem(){
+  final int _difficulty = 13;
+
+  void _makeProblem() {
     setState(() {
-      _opA = (new Random()).nextInt(12);
-      _opB = (new Random()).nextInt(12);
-      _opcode = (new Random()).nextInt(2);
-      if(_opcode == 0){
+      _opA = (new Random()).nextInt(_difficulty);
+      _opB = (new Random()).nextInt(_difficulty);
+      _opcode = (new Random()).nextInt(4);
+
+      if (_opcode == 0) {
         _operation = ' + ';
         _sln = _opA + _opB;
       }
-      else if(_opcode == 1){
+      else if (_opcode == 1) {
         _operation = ' - ';
         _sln = _opA - _opB;
       }
-      else if(_opcode == 2){
+      else if (_opcode == 2) {
         _operation = ' x ';
         _sln = _opA * _opB;
       }
-      else{
+      else if(_opcode == 3){
+        _doubleA = (new Random()).nextInt(_difficulty*_difficulty) as double;
+        _doubleB = (new Random()).nextInt(_difficulty) as double;
+
+        while(
+          _doubleB < _doubleA ||
+          _opA % _opB != 0
+        ){
+          _doubleA = (new Random()).nextInt(_difficulty*_difficulty) as double;
+          _doubleB = (new Random()).nextInt(_difficulty) as double;
+          print("Stuff");
+        }
+        _operation = ' / ';
+        _doubleSln = _doubleA / _doubleB;
+
+        _opA = _doubleA as int;
+        _opB = _doubleB as int;
+        _sln = _doubleSln as int;
+      }
+      else {
         _operation = ' % ';
         _sln = _opA % _opB;
       }
-      _eq = _opA.toString()+_operation+_opB.toString()+' = '+_sln.toString();
+
+      if (_mode) {
+        _eq = _opA.toString() + _operation + _opB.toString() + ' = ' +
+            _sln.toString();
+      }
+      else {
+        _eq = _opA.toString() + _operation + _opB.toString() + ' = ?';
+      }
+    });
+  }
+  void _answerProblem(String input) {
+    setState(() {
+      if(int.parse(input) == _sln)
+        _score++;
+      else{
+        _score--;
+      }
+    });
+  }
+
+  void _setStudyMode() {
+    setState(() {
+      _mode = true;
+      _score = 0;
+    });
+  }
+
+  void _setQuizMode() {
+    setState(() {
+      _mode = false;
+      _score = 0;
+    });
+  }
+
+  void _showToast(){
+    setState(() {
+
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
+    var _screenHeight = (MediaQuery.of(context).size.height);
+    var _screenWidth = (MediaQuery.of(context).size.width);
+
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -96,42 +160,46 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
               '$_eq',
+              style: TextStyle(fontSize: min(_screenHeight*.2, _screenWidth*.15),
+              ),
+            ),
+            TextField(
+              keyboardType: TextInputType.numberWithOptions(
+                decimal: false,
+                signed: true,
+              ),
+            decoration: InputDecoration(
+              hintText: 'Enter Answer Here',
+            ),
+              onSubmitted: (String input){
+                _answerProblem(input);
+                _makeProblem();
+              },
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _makeProblem,
-        tooltip: 'Next Problem',
-        child: Icon(Icons.arrow_forward),
-      ),
       persistentFooterButtons: <Widget>[
-        Icon(Icons.accessible),
-        Icon(Icons.accessible_forward),
-        Icon(Icons.accessible),
-        Icon(Icons.accessible_forward),
-        Icon(Icons.accessible),
-        Icon(Icons.accessible_forward),
-        Icon(Icons.android)
-      ],// This trailing comma makes auto-formatting nicer for build methods.
+        Text(
+          'Score = $_score'
+        ),
+        FlatButton(
+          child: Text(
+            'Study Mode'
+          ),
+          onPressed: _setStudyMode,
+        ),
+        FlatButton(
+          child: Text(
+            'Quiz Mode'
+          ),
+          onPressed: _setQuizMode,
+        ),
+      ],
     );
   }
 }
