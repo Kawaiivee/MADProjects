@@ -2,7 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-//import 'package:fluttertoast/fluttertoast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 void main() => runApp(MyApp());
 
@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       _opA = (new Random()).nextInt(_difficulty);
       _opB = (new Random()).nextInt(_difficulty);
-      _opcode = (new Random()).nextInt(4);
+      _opcode = (new Random()).nextInt(3);
 
       if (_opcode == 0) {
         _operation = ' + ';
@@ -115,9 +115,16 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
   }
+
+  void _buildAnswer(String input){
+    setState((){
+      _answer += input;
+    });
+  }
+
   void _answerProblem(String input) {
     setState(() {
-      if(int.parse(input) == _sln)
+      if(_answer == _sln)
         _score++;
       else{
         _score--;
@@ -139,9 +146,18 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _showToast(){
+  void _showAccuracy(String input){
     setState(() {
-
+      String _message = "";
+      if(int.parse(input) == _sln)
+        _message = "Correct! Answer is: " + input;
+      else{
+        _message = 'Wrong! Answer is: ' + input;
+      }
+      Fluttertoast.showToast(
+        msg: _message,
+        gravity: ToastGravity.CENTER,
+      );
     });
   }
 
@@ -162,27 +178,70 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              '$_eq',
-              style: TextStyle(fontSize: min(_screenHeight*.2, _screenWidth*.15),
+          Text(
+            '$_eq',
+            style: TextStyle(fontSize: min(_screenHeight*.2, _screenWidth*.15),
+            ),
+          ),
+          Row(
+            children: <Widget>[
+              FlatButton(
+                child: Text(
+                  '1'
+                ),
               ),
-            ),
-            TextField(
-              keyboardType: TextInputType.numberWithOptions(
-                decimal: false,
-                signed: true,
+              FlatButton(
+                child: Text(
+                    '2'
+                ),
               ),
-            decoration: InputDecoration(
-              hintText: 'Enter Answer Here',
-            ),
-              onSubmitted: (String input){
-                _answerProblem(input);
-                _makeProblem();
-              },
-            ),
-          ],
-        ),
+              FlatButton(
+                child: Text(
+                    '3'
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              FlatButton(
+                child: Text(
+                    '4'
+                ),
+              ),
+              FlatButton(
+                child: Text(
+                    '5'
+                ),
+              ),
+              FlatButton(
+                child: Text(
+                    '6'
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: <Widget>[
+              FlatButton(
+                child: Text(
+                    '7'
+                ),
+              ),
+              FlatButton(
+                child: Text(
+                    '8'
+                ),
+              ),
+              FlatButton(
+                child: Text(
+                    '9'
+                ),
+              ),
+            ],
+          ),
       ),
+    ),
       persistentFooterButtons: <Widget>[
         Text(
           'Score = $_score'
